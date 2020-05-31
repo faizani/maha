@@ -9,7 +9,9 @@ curl -X POST \
 ```
   
 running the application (in the IDE): open and run the main class
+  ```
   com.ecommerce.maha.MahaApplication
+  ```
 
 **Framework:**
 * spring-boot 
