@@ -1,20 +1,10 @@
 package com.ecommerce.maha.controller;
 
-import com.ecommerce.maha.core.entity.Discount;
-import com.ecommerce.maha.core.entity.Watch;
-import com.ecommerce.maha.data.repository.WatchRepository;
 import com.google.gson.Gson;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -24,53 +14,160 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class ControllerTest extends BaseIntegrationTest {
 
-    @MockBean
-    private WatchRepository watchRepository;
-
-    @Before
-    public void setUp() {
-
-        MockitoAnnotations.initMocks(this);
-
-        String watchCodesList[] = { "003", "004" };
-        List<String> watchCodes = Arrays.asList(watchCodesList);
-        Mockito.when(watchRepository.findByWatchCodeIn(new HashSet<>(watchCodes))).thenReturn(getWatches());
-
-    }
-
     @Test
-    public void checkout() throws Exception {
+    public void checkoutApi() throws Exception {
 
-        String watchCodesList[] = { "003", "004" };
+        String watchCodesList[] = { "001", "002", "001", "004", "003" };
         List<String> watchCodes = Arrays.asList(watchCodesList);
 
         mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.price", is(80)));
+                .andExpect(jsonPath("$.price", is(360.0)));
     }
 
-    private List<Watch> getWatches() {
+    @Test
+    public void checkoutApi_whenAllWatchesEachOne() throws Exception {
 
-        List<Watch> watches = new ArrayList<>();
+        String watchCodesList[] = { "001", "002", "003", "004" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
 
-        Watch swatch = getWatch(3, "003", "Swatch", new BigDecimal(50));
-        Discount sDiscount = Discount.builder().id(1).minimumQuantityRequired(3).discountedValue(BigDecimal.TEN)
-                .watch(swatch).build();
-        swatch.setDiscount(sDiscount);
-
-        Watch casio = getWatch(4, "004", "Casio", new BigDecimal(30));
-        Discount cDiscount = Discount.builder().id(1).minimumQuantityRequired(3).discountedValue(BigDecimal.TEN)
-                .watch(casio).build();
-        casio.setDiscount(cDiscount);
-
-        watches.add(swatch);
-        watches.add(casio);
-
-        return watches;
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(260.0)));
     }
 
-    private Watch getWatch(Integer id, String watchCode, String watchName, BigDecimal unitPrice) {
+    @Test
+    public void checkoutApi_whenOneRolexWatchOnly() throws Exception {
 
-        return new Watch(id, watchCode, watchName, unitPrice, null);
+        String watchCodesList[] = { "001" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(100.0)));
     }
+
+    @Test
+    public void checkoutApi_whenOneMichaelKorsWatchOnly() throws Exception {
+
+        String watchCodesList[] = { "002" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(80.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenOneSwatchWatchOnly() throws Exception {
+
+        String watchCodesList[] = { "003" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(50.0)));
+    }
+
+
+    @Test
+    public void checkoutApi_whenOneCasioWatchOnly() throws Exception {
+
+        String watchCodesList[] = { "004" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(30.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenTwoRolexWatchOnly() throws Exception {
+
+        String watchCodesList[] = { "001", "001" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(200.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenThreeRolexWatchOnly() throws Exception {
+
+        String watchCodesList[] = { "001", "001", "001" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(200.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenFourRolexWatchOnly() throws Exception {
+
+        String watchCodesList[] = { "001", "001", "001", "001" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(300.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenTwoMichaelKorsWatchesOnly() throws Exception {
+
+        String watchCodesList[] = { "002", "002" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(120.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenThreeMichaelKorsWatchesOnly() throws Exception {
+
+        String watchCodesList[] = { "002", "002", "002" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(200.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenThreeRolexAndTwoMichaelKorsWatches() throws Exception {
+
+        String watchCodesList[] = { "001", "001", "001", "002", "002" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(320.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenThreeRolexAndFiveMichaelKorsWatches() throws Exception {
+
+        String watchCodesList[] = { "001", "001", "001", "002", "002", "002", "002", "002" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(520.0)));
+    }
+
+    @Test
+    public void checkoutApi_whenSevenRolexAndFiveMichaelKorsWatchesAndTwoSwatchThreeCasio() throws Exception {
+
+        String watchCodesList[] = { "001", "001", "001", "001", "001", "001", "001", "002", "002", "002", "002", "002",
+                "003", "003", "004", "004", "004" };
+        List<String> watchCodes = Arrays.asList(watchCodesList);
+
+        mvc.perform(post("/checkout/").content(new Gson().toJson(watchCodes)).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.price", is(1010.0)));
+    }
+
 }
